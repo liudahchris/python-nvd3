@@ -178,6 +178,7 @@ class NVD3Chart(object):
         #: Javascript code as string
         self.jschart = None
         self.custom_tooltip_flag = False
+        self.custom_tooltip_text_flag = False
         self.tooltip_condition_string = ''
         self.charttooltip = ''
         self.serie_no = 1
@@ -186,7 +187,7 @@ class NVD3Chart(object):
         """Slufigy name with underscore"""
         self.name = slugify(name, separator='_')
 
-    def add_serie(self, y, x, name=None, extra=None, **kwargs):
+    def add_serie(self, y, x, name=None, text=None, extra=None, **kwargs):
         """
         add serie - Series are list of data that will be plotted
         y {1, 2, 3, 4, 5} / x {1, 2, 3, 4, 5}
@@ -238,6 +239,26 @@ class NVD3Chart(object):
 
         data_keyvalue = {'values': serie, 'key': name}
 
+        if text:
+            self.custom_tooltip_text_flag = True
+            for i, text_ in enumerate(text):
+                serie[i]['text'] = text_
+            if self.model != 'pieChart':
+                if self.model == 'linePlusBarChart':
+                    if self.tooltip_condition_string:
+                        self.tooltip_condition_string += stab(5)
+                    self.tooltip_condition_string += stab(0) + "if(key.indexOf('" + name + "') > -1 ){\n" +\
+                        stab(6) + "var y = String(graph.point.text) " + ";\n" +\
+                        stab(5) + "}\n"
+                elif self.model == 'cumulativeLineChart':
+                    self.tooltip_condition_string += stab(0) + "if(key == '" + name + "'){\n" +\
+                        stab(6) + "var y = String(e) " + ";\n" +\
+                        stab(5) + "}\n"
+                else:
+                    self.tooltip_condition_string += stab(5) + "if(key == '" + name + "'){\n" +\
+                        stab(6) + "var y = String(graph.point.text) " + ";\n" +\
+                        stab(5) + "}\n"
+
         # multiChart
         # Histogram type='bar' for the series
         if 'type' in kwargs and kwargs['type']:
@@ -268,7 +289,7 @@ class NVD3Chart(object):
             if extra.get('date_format'):
                 self.charttooltip_dateformat = extra['date_format']
 
-            if extra.get('tooltip'):
+            if extra.get('tooltip') and not text:
                 self.custom_tooltip_flag = True
 
                 if self.model != 'pieChart':
