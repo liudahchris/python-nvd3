@@ -44,3 +44,7 @@ htmlcov
 test_*.html
 #[vim]
 *.swp
+
+test_plot.py
+data/
+output-files/
