@@ -197,6 +197,8 @@ class NVD3Chart(object):
             * ``name`` - set Serie name
             * ``x`` - x-axis data
             * ``y`` - y-axis data
+            * ``text`` - text data for tooltips for each point
+                * If text is given, cannot add tooltips via "extra" parameter
 
             kwargs:
 
@@ -289,6 +291,7 @@ class NVD3Chart(object):
             if extra.get('date_format'):
                 self.charttooltip_dateformat = extra['date_format']
 
+            # Do not allow tooltip if text is given for points
             if extra.get('tooltip') and not text:
                 self.custom_tooltip_flag = True
 
